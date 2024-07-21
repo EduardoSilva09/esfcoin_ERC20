@@ -14,15 +14,15 @@ contract EsfCoin {
         uint256 _value
     );
 
-    mapping(address => uint256) private _ballances;
+    mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
     constructor() {
-        _ballances[msg.sender] = totalSupply;
+        _balances[msg.sender] = totalSupply;
     }
 
     function balanceOf(address _owner) public view returns (uint256 balance) {
-        return _ballances[_owner];
+        return _balances[_owner];
     }
 
     function transfer(
@@ -30,9 +30,28 @@ contract EsfCoin {
         uint256 _value
     ) public returns (bool success) {
         require(balanceOf(msg.sender) >= _value, "Insufficient balance");
-        _ballances[msg.sender] -= _value;
-        _ballances[_to] += _value;
+        _balances[msg.sender] -= _value;
+        _balances[_to] += _value;
         emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _value
+    ) public returns (bool success) {
+        require(balanceOf(_from) >= _value, "Insufficient balance");
+        require(
+            allowance(_from, msg.sender) >= _value,
+            "Insufficient allowance"
+        );
+
+        _balances[_from] -= _value;
+        _allowances[_from][msg.sender] -= _value;
+        _balances[_to] += _value;
+        emit Transfer(_from, _to, _value);
+
         return true;
     }
 

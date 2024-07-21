@@ -79,5 +79,40 @@ describe("EsfCoin Tests", function () {
       expect(value).to.equal(1n);
     });
 
+    it("Should transfer from", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+      const balanceOwnerBefore = await esfCoin.balanceOf(owner.address);
+      const balanceOtherBefore = await esfCoin.balanceOf(otherAccount.address);
+
+      await esfCoin.approve(otherAccount.address, 10n);
+      const instance = esfCoin.connect(otherAccount);
+      await instance.transferFrom(owner.address, otherAccount.address, 5n);
+
+      const balanceOwnerAfter = await esfCoin.balanceOf(owner.address);
+      const balanceOtherAfter = await esfCoin.balanceOf(otherAccount.address);
+      const allowance = await esfCoin.allowance(owner.address, otherAccount.address)
+
+      expect(balanceOwnerBefore).to.equal((1000n * 10n ** 18n));
+      expect(balanceOwnerAfter).to.equal((1000n * 10n ** 18n) - 5n);
+      expect(balanceOtherBefore).to.equal(0);
+      expect(balanceOtherAfter).to.equal(5);
+      expect(allowance).to.equal(5);
+    });
+
+    it("Should NOT transfer from (balance)", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+
+      const instance = esfCoin.connect(otherAccount);
+      await expect(instance.transferFrom(otherAccount.address, otherAccount.address, 5n))
+        .to.be.revertedWith("Insufficient balance");
+    });
+
+    it("Should NOT transfer from (ballance)", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+
+      const instance = esfCoin.connect(otherAccount);
+      await expect(instance.transferFrom(owner.address, otherAccount.address, 5n))
+        .to.be.revertedWith("Insufficient allowance");
+    });
   });
 });
