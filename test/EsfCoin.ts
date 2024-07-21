@@ -72,5 +72,12 @@ describe("EsfCoin Tests", function () {
       await expect(esfCoin.transfer(otherAccount.address, (totalSupply + 1n))).to.be.revertedWith("Insufficient balance");
     });
 
+    it("Should approve", async function () {
+      const { esfCoin, owner, otherAccount } = await loadFixture(deployFixture);
+      await esfCoin.approve(otherAccount.address, 1n);
+      const value = await esfCoin.allowance(owner.address, otherAccount.address)
+      expect(value).to.equal(1n);
+    });
+
   });
 });

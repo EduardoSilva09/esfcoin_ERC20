@@ -15,6 +15,7 @@ contract EsfCoin {
     );
 
     mapping(address => uint256) private _ballances;
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     constructor() {
         _ballances[msg.sender] = totalSupply;
@@ -33,5 +34,21 @@ contract EsfCoin {
         _ballances[_to] += _value;
         emit Transfer(msg.sender, _to, _value);
         return true;
+    }
+
+    function approve(
+        address _spender,
+        uint256 _value
+    ) public returns (bool success) {
+        _allowances[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
+
+    function allowance(
+        address _owner,
+        address _spender
+    ) public view returns (uint256 remaining) {
+        return _allowances[_owner][_spender];
     }
 }
